@@ -9,7 +9,7 @@
 
 #define ROWS 20
 #define COLUMNS 15
-#define TRUE_VALUE 1
-#define FALSE_VALUE 0
+#define TRUE 1
+#define FALSE 0
 
 #endif
