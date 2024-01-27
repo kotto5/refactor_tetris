@@ -1,17 +1,17 @@
-#include TETRIS.H
+#include "tetris.h"
 
 char Table[ROWS][COLUMNS] = {0};
 int final = 0;
-char GameOn = T;
+char GameOn = TRUE;
 suseconds_t timer = 400000;
 int decrease = 1000;
 
 typedef struct {
-    char **shape;
+    char **array;
     int width, row, col;
 } s_tetromino;
 
-s_tetromino current_piece;
+s_tetromino current;
 
 const s_tetromino tetrominoes[7]= {
 	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},
@@ -23,8 +23,8 @@ const s_tetromino tetrominoes[7]= {
 	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4}
 };
 
-s_tetromino copy_tetromino(tetoromino shape){
-	Struct new_shape = shape;
+s_tetromino copy_tetromino(s_tetromino shape){
+	s_tetromino new_shape = shape;
 	char **copyshape = shape.array;
 	new_shape.array = (char**)malloc(new_shape.width*sizeof(char*));
     int i, j;
@@ -50,20 +50,20 @@ int check_position(s_tetromino shape){
 	int i, j;
 	for(i = 0; i < shape.width;i++) {
 		for(j = 0; j < shape.width ;j++){
-			if((shape.col+j < 0 || shape.col+j >= C || shape.row+i >= R)){
+			if((shape.col+j < 0 || shape.col+j >= COLUMNS || shape.row+i >= ROWS)){
 				if(array[i][j])
-					return F;
+					return FALSE;
 				
 			}
 			else if(Table[shape.row+i][shape.col+j] && array[i][j])
-				return F;
+				return FALSE;
 		}
 	}
-	return T;
+	return TRUE;
 }
 
-void rotate_shape(s_tetromino *shape){
-	Struct temp = FunctionCS(shape);
+void rotate_shape(s_tetromino shape){
+	s_tetromino temp = copy_tetromino(shape);
 	int i, j, k, width;
 	width = shape.width;
 	for(i = 0; i < width ; i++){
@@ -71,11 +71,11 @@ void rotate_shape(s_tetromino *shape){
 				shape.array[i][j] = temp.array[k][i];
 		}
 	}
-	FunctionDS(temp);
+	destroy_tetromino(temp);
 }
 
 void print_table(){
-	char Buffer[R][C] = {0};
+	char Buffer[ROWS][COLUMNS] = {0};
 	int i, j;
 	for(i = 0; i < current.width ;i++){
 		for(j = 0; j < current.width ; j++){
@@ -84,11 +84,11 @@ void print_table(){
 		}
 	}
 	clear();
-	for(i=0; i<C-9; i++)
+	for(i=0; i<COLUMNS-9; i++)
 		printw(" ");
 	printw("42 Tetris\n");
-	for(i = 0; i < R ;i++){
-		for(j = 0; j < C ; j++){
+	for(i = 0; i < ROWS ;i++){
+		for(j = 0; j < COLUMNS ; j++){
 			printw("%c ", (Table[i][j] + Buffer[i][j])? '#': '.');
 		}
 		printw("\n");
@@ -113,22 +113,22 @@ int main() {
     initscr();
 	gettimeofday(&before_now, NULL);
 	set_timeout(1);
-	Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-    new_shape.col = rand()%(C-new_shape.width+1);
+	s_tetromino new_shape = copy_tetromino(tetrominoes[rand()%7]);
+    new_shape.col = rand()%(COLUMNS-new_shape.width+1);
     new_shape.row = 0;
-    FunctionDS(current);
+    destroy_tetromino(current);
 	current = new_shape;
-	if(!FunctionCP(current)){
-		GameOn = F;
+	if(!check_position(current)){
+		GameOn = FALSE;
 	}
-    FunctionPT();
+    print_table();
 	while(GameOn){
 		if ((c = getch()) != ERR) {
-			Struct temp = FunctionCS(current);
+			s_tetromino temp = copy_tetromino(current);
 			switch(c){
 				case 's':
 					temp.row++;  //move down
-					if(FunctionCP(temp))
+					if(check_position(temp))
 						current.row++;
 					else {
 						int i, j;
@@ -139,59 +139,59 @@ int main() {
 							}
 						}
 						int n, m, sum, count=0;
-						for(n=0;n<R;n++){
+						for(n=0;n<ROWS;n++){
 							sum = 0;
-							for(m=0;m< C;m++) {
+							for(m=0;m< COLUMNS;m++) {
 								sum+=Table[n][m];
 							}
-							if(sum==C){
+							if(sum==COLUMNS){
 								count++;
 								int l, k;
 								for(k = n;k >=1;k--)
-									for(l=0;l<C;l++)
+									for(l=0;l<COLUMNS;l++)
 										Table[k][l]=Table[k-1][l];
-								for(l=0;l<C;l++)
+								for(l=0;l<COLUMNS;l++)
 									Table[k][l]=0;
 								timer-=decrease--;
 							}
 						}
 						final += 100*count;
-						Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-						new_shape.col = rand()%(C-new_shape.width+1);
+						s_tetromino new_shape = copy_tetromino(tetrominoes[rand()%7]);
+						new_shape.col = rand()%(COLUMNS-new_shape.width+1);
 						new_shape.row = 0;
-						FunctionDS(current);
+						destroy_tetromino(current);
 						current = new_shape;
-						if(!FunctionCP(current)){
-							GameOn = F;
+						if(!check_position(current)){
+							GameOn = FALSE;
 						}
 					}
 					break;
 				case 'd':
 					temp.col++;
-					if(FunctionCP(temp))
+					if(check_position(temp))
 						current.col++;
 					break;
 				case 'a':
 					temp.col--;
-					if(FunctionCP(temp))
+					if(check_position(temp))
 						current.col--;
 					break;
 				case 'w':
-					FunctionRS(temp);
-					if(FunctionCP(temp))
-						FunctionRS(current);
+					rotate_shape(temp);
+					if(check_position(temp))
+						rotate_shape(current);
 					break;
 			}
-			FunctionDS(temp);
-			FunctionPT();
+			destroy_tetromino(temp);
+			print_table();
 		}
 		gettimeofday(&now, NULL);
-		if (hasToUpdate()) {
-			Struct temp = FunctionCS(current);
+		if (has_time_elapsed()) {
+			s_tetromino temp = copy_tetromino(current);
 			switch('s'){
 				case 's':
 					temp.row++;
-					if(FunctionCP(temp))
+					if(check_position(temp))
 						current.row++;
 					else {
 						int i, j;
@@ -202,58 +202,58 @@ int main() {
 							}
 						}
 						int n, m, sum, count=0;
-						for(n=0;n<R;n++){
+						for(n=0;n<ROWS;n++){
 							sum = 0;
-							for(m=0;m< C;m++) {
+							for(m=0;m< COLUMNS;m++) {
 								sum+=Table[n][m];
 							}
-							if(sum==C){
+							if(sum==COLUMNS){
 								count++;
 								int l, k;
 								for(k = n;k >=1;k--)
-									for(l=0;l<C;l++)
+									for(l=0;l<COLUMNS;l++)
 										Table[k][l]=Table[k-1][l];
-								for(l=0;l<C;l++)
+								for(l=0;l<COLUMNS;l++)
 									Table[k][l]=0;
 								timer-=decrease--;
 							}
 						}
-						Struct new_shape = FunctionCS(StructsArray[rand()%7]);
-						new_shape.col = rand()%(C-new_shape.width+1);
+						s_tetromino new_shape = copy_tetromino(tetrominoes[rand()%7]);
+						new_shape.col = rand()%(COLUMNS-new_shape.width+1);
 						new_shape.row = 0;
-						FunctionDS(current);
+						destroy_tetromino(current);
 						current = new_shape;
-						if(!FunctionCP(current)){
-							GameOn = F;
+						if(!check_position(current)){
+							GameOn = FALSE;
 						}
 					}
 					break;
 				case 'd':
 					temp.col++;
-					if(FunctionCP(temp))
+					if(check_position(temp))
 						current.col++;
 					break;
 				case 'a':
 					temp.col--;
-					if(FunctionCP(temp))
+					if(check_position(temp))
 						current.col--;
 					break;
 				case 'w':
-					FunctionRS(temp);
-					if(FunctionCP(temp))
-						FunctionRS(current);
+					rotate_shape(temp);
+					if(check_position(temp))
+						rotate_shape(current);
 					break;
 			}
-			FunctionDS(temp);
-			FunctionPT();
+			destroy_tetromino(temp);
+			print_table();
 			gettimeofday(&before_now, NULL);
 		}
 	}
-	FunctionDS(current);
+	destroy_tetromino(current);
 	endwin();
 	int i, j;
-	for(i = 0; i < R ;i++){
-		for(j = 0; j < C ; j++){
+	for(i = 0; i < ROWS ;i++){
+		for(j = 0; j < COLUMNS ; j++){
 			printf("%c ", Table[i][j] ? '#': '.');
 		}
 		printf("\n");
