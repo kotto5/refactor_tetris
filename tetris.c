@@ -16,12 +16,13 @@ suseconds_t timer = 400000;
 int decrease = 1000;
 
 typedef struct {
-    char **array;
+    char **shape;
     int width, row, col;
-} Struct;
-Struct current;
+} tetromino;
 
-const Struct StructsArray[7]= {
+tetromino current_piece;
+
+const tetromino tetrominoes[7]= {
 	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},
 	{(char *[]){(char []){1,1,0},(char []){0,1,1}, (char []){0,0,0}}, 3},
 	{(char *[]){(char []){0,1,0},(char []){1,1,1}, (char []){0,0,0}}, 3},
@@ -31,7 +32,7 @@ const Struct StructsArray[7]= {
 	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4}
 };
 
-Struct FunctionCS(Struct shape){
+tetromino copy_tetromino(tetoromino shape){
 	Struct new_shape = shape;
 	char **copyshape = shape.array;
 	new_shape.array = (char**)malloc(new_shape.width*sizeof(char*));
@@ -45,7 +46,7 @@ Struct FunctionCS(Struct shape){
     return new_shape;
 }
 
-void FunctionDS(Struct shape){
+void destroy_tetromino(tetromino shape){
     int i;
     for(i = 0; i < shape.width; i++){
 		free(shape.array[i]);
@@ -53,7 +54,7 @@ void FunctionDS(Struct shape){
     free(shape.array);
 }
 
-int FunctionCP(Struct shape){
+int check_position(tetromino shape){
 	char **array = shape.array;
 	int i, j;
 	for(i = 0; i < shape.width;i++) {
@@ -70,7 +71,7 @@ int FunctionCP(Struct shape){
 	return T;
 }
 
-void FunctionRS(Struct shape){
+void rotate_shape(tetromino *shape){
 	Struct temp = FunctionCS(shape);
 	int i, j, k, width;
 	width = shape.width;
