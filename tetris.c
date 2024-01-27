@@ -9,11 +9,11 @@ int decrease = 1000;
 typedef struct {
     char **shape;
     int width, row, col;
-} tetromino;
+} s_tetromino;
 
-tetromino current_piece;
+s_tetromino current_piece;
 
-const tetromino tetrominoes[7]= {
+const s_tetromino tetrominoes[7]= {
 	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},
 	{(char *[]){(char []){1,1,0},(char []){0,1,1}, (char []){0,0,0}}, 3},
 	{(char *[]){(char []){0,1,0},(char []){1,1,1}, (char []){0,0,0}}, 3},
@@ -23,7 +23,7 @@ const tetromino tetrominoes[7]= {
 	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4}
 };
 
-tetromino copy_tetromino(tetoromino shape){
+s_tetromino copy_tetromino(tetoromino shape){
 	Struct new_shape = shape;
 	char **copyshape = shape.array;
 	new_shape.array = (char**)malloc(new_shape.width*sizeof(char*));
@@ -37,7 +37,7 @@ tetromino copy_tetromino(tetoromino shape){
     return new_shape;
 }
 
-void destroy_tetromino(tetromino shape){
+void destroy_tetromino(s_tetromino shape){
     int i;
     for(i = 0; i < shape.width; i++){
 		free(shape.array[i]);
@@ -45,7 +45,7 @@ void destroy_tetromino(tetromino shape){
     free(shape.array);
 }
 
-int check_position(tetromino shape){
+int check_position(s_tetromino shape){
 	char **array = shape.array;
 	int i, j;
 	for(i = 0; i < shape.width;i++) {
@@ -62,7 +62,7 @@ int check_position(tetromino shape){
 	return T;
 }
 
-void rotate_shape(tetromino *shape){
+void rotate_shape(s_tetromino *shape){
 	Struct temp = FunctionCS(shape);
 	int i, j, k, width;
 	width = shape.width;
