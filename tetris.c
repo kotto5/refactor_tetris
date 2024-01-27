@@ -1,15 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
-#include <ncurses.h>
+#include TETRIS.H
 
-#define R 20
-#define C 15
-#define T 1
-#define F 0
-
-char Table[R][C] = {0};
+char Table[ROWS][COLUMNS] = {0};
 int final = 0;
 char GameOn = T;
 suseconds_t timer = 400000;
