@@ -1,27 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <sys/time.h>
-#include <ncurses.h>
+#include TETRIS.H
 
-#define R 20
-#define C 15
-#define T 1
-#define F 0
-
-char Table[R][C] = {0};
+char Table[ROWS][COLUMNS] = {0};
 int final = 0;
 char GameOn = T;
 suseconds_t timer = 400000;
 int decrease = 1000;
 
 typedef struct {
-    char **array;
+    char **shape;
     int width, row, col;
-} Struct;
-Struct current;
+} s_tetromino;
 
-const Struct StructsArray[7]= {
+s_tetromino current_piece;
+
+const s_tetromino tetrominoes[7]= {
 	{(char *[]){(char []){0,1,1},(char []){1,1,0}, (char []){0,0,0}}, 3},
 	{(char *[]){(char []){1,1,0},(char []){0,1,1}, (char []){0,0,0}}, 3},
 	{(char *[]){(char []){0,1,0},(char []){1,1,1}, (char []){0,0,0}}, 3},
@@ -31,7 +23,7 @@ const Struct StructsArray[7]= {
 	{(char *[]){(char []){0,0,0,0}, (char []){1,1,1,1}, (char []){0,0,0,0}, (char []){0,0,0,0}}, 4}
 };
 
-Struct FunctionCS(Struct shape){
+s_tetromino copy_tetromino(tetoromino shape){
 	Struct new_shape = shape;
 	char **copyshape = shape.array;
 	new_shape.array = (char**)malloc(new_shape.width*sizeof(char*));
@@ -45,7 +37,7 @@ Struct FunctionCS(Struct shape){
     return new_shape;
 }
 
-void FunctionDS(Struct shape){
+void destroy_tetromino(s_tetromino shape){
     int i;
     for(i = 0; i < shape.width; i++){
 		free(shape.array[i]);
@@ -53,7 +45,7 @@ void FunctionDS(Struct shape){
     free(shape.array);
 }
 
-int FunctionCP(Struct shape){
+int check_position(s_tetromino shape){
 	char **array = shape.array;
 	int i, j;
 	for(i = 0; i < shape.width;i++) {
@@ -70,7 +62,7 @@ int FunctionCP(Struct shape){
 	return T;
 }
 
-void FunctionRS(Struct shape){
+void rotate_shape(s_tetromino *shape){
 	Struct temp = FunctionCS(shape);
 	int i, j, k, width;
 	width = shape.width;
@@ -82,7 +74,7 @@ void FunctionRS(Struct shape){
 	FunctionDS(temp);
 }
 
-void FunctionPT(){
+void print_table(){
 	char Buffer[R][C] = {0};
 	int i, j;
 	for(i = 0; i < current.width ;i++){
@@ -105,7 +97,7 @@ void FunctionPT(){
 }
 
 struct timeval before_now, now;
-int hasToUpdate(){
+int has_time_elapsed(){
 	return ((suseconds_t)(now.tv_sec*1000000 + now.tv_usec) -((suseconds_t)before_now.tv_sec*1000000 + before_now.tv_usec)) > timer;
 }
 
