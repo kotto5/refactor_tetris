@@ -83,7 +83,7 @@ void rotate_shape(tetromino *shape){
 	FunctionDS(temp);
 }
 
-void FunctionPT(){
+void print_table(){
 	char Buffer[R][C] = {0};
 	int i, j;
 	for(i = 0; i < current.width ;i++){
@@ -106,7 +106,7 @@ void FunctionPT(){
 }
 
 struct timeval before_now, now;
-int hasToUpdate(){
+int has_time_elapsed(){
 	return ((suseconds_t)(now.tv_sec*1000000 + now.tv_usec) -((suseconds_t)before_now.tv_sec*1000000 + before_now.tv_usec)) > timer;
 }
 
